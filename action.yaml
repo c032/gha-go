@@ -1,0 +1,51 @@
+name: "gha-go"
+
+inputs:
+  working-directory:
+    type: "string"
+    required: true
+    default: "."
+
+  build:
+    type: "boolean"
+    required: true
+    default: "true"
+
+  vet:
+    type: "boolean"
+    required: true
+    default: "true"
+
+  test:
+    type: "boolean"
+    required: true
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Setup Go."
+      uses: "actions/setup-go@v5"
+      with:
+        go-version-file: "${{ inputs.working-directory }}/go.mod"
+
+    - name: "`go build`"
+      if: "${{ inputs.build == 'true' }}"
+      shell: "bash"
+      working-directory: "${{ inputs.working-directory }}"
+      run: |
+        go build ./...
+
+    - name: "`go vet`"
+      if: "${{ inputs.vet == 'true' }}"
+      shell: "bash"
+      working-directory: "${{ inputs.working-directory }}"
+      run: |
+        go vet ./...
+
+    - name: "`go test`"
+      if: "${{ inputs.test == 'true' }}"
+      shell: "bash"
+      working-directory: "${{ inputs.working-directory }}"
+      run: |
+        go test -v ./...
